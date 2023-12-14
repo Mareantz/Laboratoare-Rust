@@ -1,0 +1,7 @@
+{
+    "rust-analyzer.linkedProjects": [
+        ".\\base64\\Cargo.toml",
+        ".\\Cargo.toml",
+        ".\\encoder\\Cargo.toml"
+    ]
+}

@@ -21,13 +21,7 @@ fn main() {
     vec.sort_by(|a, b| a.1.cmp(b.1));
 
     for (k, v) in vec.iter().rev() {
-        match write!(
-            std::io::stdout(),
-            "{:width$} => {}\n",
-            k,
-            v,
-            width = max_len as usize
-        ) {
+        match write!(std::io::stdout(),"{:width$} => {}\n",k,v,width = max_len as usize) {
             Ok(_) => (),
             Err(e) => eprintln!("Failed to write to stdout: {}", e),
         }
