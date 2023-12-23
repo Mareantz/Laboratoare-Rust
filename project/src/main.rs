@@ -1,25 +1,28 @@
 use anyhow::anyhow;
+use rand::seq::IteratorRandom;
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
+use std::{fs, path::Path};
 use tracing::{error, info};
-use std::fs;
-use rand::seq::IteratorRandom;
 
 struct Bot;
 
 #[async_trait]
 impl EventHandler for Bot {
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content == "!hello" {
-            if let Err(e) = msg.channel_id.say(&ctx.http, "world!").await {
+        if msg.content == "!doctor" {
+            if let Err(e) = msg
+                .channel_id
+                .say(&ctx.http, "Command usage: !doctor [number]")
+                .await
+            {
                 error!("Error sending message: {:?}", e);
             }
         }
-        if msg.content =="!quote"
-        {
+        if msg.content == "!quote" {
             let rng = fs::read_to_string("src/quotes.txt");
             match rng {
                 Ok(rng) => {
@@ -28,12 +31,44 @@ impl EventHandler for Bot {
                         error!("Error sending message: {:?}", e);
                     }
                 }
-            Err(e) => error!("Error reading file: {:?}", e),
+                Err(e) => error!("Error reading file: {:?}", e),
             }
-            
+        }
+        let content = msg.content.split_once(" ");
+        if let Some((command, number)) = content {
+            if command == "!doctor" {
+                let path = Path::new("doctors");
+                let entries = fs::read_dir(path).expect("Unable to list files in the directory");
+                let files: Vec<_> = entries
+                    .filter_map(Result::ok)
+                    .map(|res| res.path())
+                    .collect();
+                if let Ok(index) = number.trim().parse::<usize>() {
+                    if index > 0 && index <= files.len() {
+                        let photo = &files[index - 1];
+                        if let Err(e) = msg
+                            .channel_id
+                            .send_files(&ctx.http, vec![photo], |m| {
+                                m.content("Here is your photo!")
+                            })
+                            .await
+                        {
+                            error!("Error sending photo: {:?}", e);
+                        }
+                    } else {
+                        if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid photo number!").await
+                        {
+                            error!("Error sending message: {:?}", e);
+                        }
+                    }
+                } else {
+                    if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
+                        error!("Error sending message: {:?}", e);
+                    }
+                }
+            }
         }
     }
-
     async fn ready(&self, _: Context, ready: Ready) {
         info!("{} is connected!", ready.user.name);
     }
