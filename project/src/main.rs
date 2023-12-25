@@ -35,7 +35,7 @@ impl EventHandler for Bot {
             }
         }
         let content = msg.content.split_once(" ");
-        if let Some((command, number)) = content {
+        if let Some((command, args)) = content {
             if command == "!doctor" {
                 let path = Path::new("doctors");
                 let entries = fs::read_dir(path).expect("Unable to list files in the directory");
@@ -43,7 +43,7 @@ impl EventHandler for Bot {
                     .filter_map(Result::ok)
                     .map(|res| res.path())
                     .collect();
-                if let Ok(index) = number.trim().parse::<usize>() {
+                if let Ok(index) = args.trim().parse::<usize>() {
                     if index > 0 && index <= files.len() {
                         let photo = &files[index - 1];
                         if let Err(e) = msg
@@ -65,6 +65,27 @@ impl EventHandler for Bot {
                     if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
                         error!("Error sending message: {:?}", e);
                     }
+                }
+            }
+            if command == "!episode" {
+                let episodes = fs::read_to_string("src/episodes.txt");
+                match episodes {
+                    Ok(episodes) => {
+                        for line in episodes.lines() {
+                            let episode = line.split_once(",");
+                            if let Some((title, _)) = episode {
+                                for word in title.split(" ") {
+                                    if word.to_lowercase() == args.to_lowercase() {
+                                        if let Err(e) = msg.channel_id.say(&ctx.http, line).await {
+                                            error!("Error sending message: {:?}", e);
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    Err(e) => error!("Error reading file: {:?}", e),
                 }
             }
         }
