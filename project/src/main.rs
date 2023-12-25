@@ -34,7 +34,7 @@ impl EventHandler for Bot {
                 Err(e) => error!("Error reading file: {:?}", e),
             }
         }
-        let content = msg.content.split_once(" ");
+        let content = msg.content.split_once(' ');
         if let Some((command, args)) = content {
             if command == "!doctor" {
                 let path = Path::new("doctors");
@@ -55,16 +55,13 @@ impl EventHandler for Bot {
                         {
                             error!("Error sending photo: {:?}", e);
                         }
-                    } else {
-                        if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid photo number!").await
+                    } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid photo number!").await
                         {
                             error!("Error sending message: {:?}", e);
                         }
-                    }
-                } else {
-                    if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
+                } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
                         error!("Error sending message: {:?}", e);
-                    }
+                    
                 }
             }
             if command == "!episode" {
@@ -72,9 +69,9 @@ impl EventHandler for Bot {
                 match episodes {
                     Ok(episodes) => {
                         for line in episodes.lines() {
-                            let episode = line.split_once(",");
+                            let episode = line.split_once(',');
                             if let Some((title, _)) = episode {
-                                for word in title.split(" ") {
+                                for word in title.split(' ') {
                                     if word.to_lowercase() == args.to_lowercase() {
                                         if let Err(e) = msg.channel_id.say(&ctx.http, line).await {
                                             error!("Error sending message: {:?}", e);
