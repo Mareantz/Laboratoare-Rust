@@ -846,6 +846,9 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "rand",
+ "serde",
+ "serde_derive",
+ "serde_json",
  "serenity",
  "shuttle-runtime",
  "shuttle-secrets",

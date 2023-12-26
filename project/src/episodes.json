@@ -1,0 +1,737 @@
+[
+    {
+        "title": "Rose",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 1"
+    },
+    {
+        "title": "The End of the World",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 2"
+    },
+    {
+        "title": "The Unquiet Dead",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 3"
+    },
+    {
+        "title": "Aliens of London",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 4"
+    },
+    {
+        "title": "World War Three",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 5"
+    },
+    {
+        "title": "Dalek",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 6"
+    },
+    {
+        "title": "The Long Game",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 7"
+    },
+    {
+        "title": "Father's Day",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 8"
+    },
+    {
+        "title": "The Empty Child",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 9"
+    },
+    {
+        "title": "The Doctor Dances",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 10"
+    },
+    {
+        "title": "Boom Town",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 11"
+    },
+    {
+        "title": "Bad Wolf",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 12"
+    },
+    {
+        "title": "The Parting of the Ways",
+        "runtime": "45 minutes",
+        "episode": "Series 1, Episode 13"
+    },
+    {
+        "title": "New Earth",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 1"
+    },
+    {
+        "title": "Tooth and Claw",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 2"
+    },
+    {
+        "title": "School Reunion",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 3"
+    },
+    {
+        "title": "The Girl in the Fireplace",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 4"
+    },
+    {
+        "title": "Rise of the Cybermen",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 5"
+    },
+    {
+        "title": "The Age of Steel",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 6"
+    },
+    {
+        "title": "The Idiot's Lantern",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 7"
+    },
+    {
+        "title": "The Impossible Planet",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 8"
+    },
+    {
+        "title": "The Satan Pit",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 9"
+    },
+    {
+        "title": "Love & Monsters",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 10"
+    },
+    {
+        "title": "Fear Her",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 11"
+    },
+    {
+        "title": "Army of Ghosts",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 12"
+    },
+    {
+        "title": "Doomsday",
+        "runtime": "45 minutes",
+        "episode": "Series 2, Episode 13"
+    },
+    {
+        "title": "Smith and Jones",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 1"
+    },
+    {
+        "title": "The Shakespeare Code",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 2"
+    },
+    {
+        "title": "Gridlock",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 3"
+    },
+    {
+        "title": "Daleks in Manhattan",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 4"
+    },
+    {
+        "title": "Evolution of the Daleks",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 5"
+    },
+    {
+        "title": "The Lazarus Experiment",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 6"
+    },
+    {
+        "title": "42",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 7"
+    },
+    {
+        "title": "Human Nature",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 8"
+    },
+    {
+        "title": "The Family of Blood",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 9"
+    },
+    {
+        "title": "Blink",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 10"
+    },
+    {
+        "title": "Utopia",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 11"
+    },
+    {
+        "title": "The Sound of Drums",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 12"
+    },
+    {
+        "title": "Last of the Time Lords",
+        "runtime": "45 minutes",
+        "episode": "Series 3, Episode 13"
+    },
+    {
+        "title": "Partners in Crime",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 1"
+    },
+    {
+        "title": "The Fires of Pompeii",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 2"
+    },
+    {
+        "title": "Planet of the Ood",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 3"
+    },
+    {
+        "title": "The Sontaran Stratagem",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 4"
+    },
+    {
+        "title": "The Poison Sky",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 5"
+    },
+    {
+        "title": "The Doctor's Daughter",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 6"
+    },
+    {
+        "title": "The Unicorn and the Wasp",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 7"
+    },
+    {
+        "title": "Silence in the Library",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 8"
+    },
+    {
+        "title": "Forest of the Dead",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 9"
+    },
+    {
+        "title": "Midnight",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 10"
+    },
+    {
+        "title": "Turn Left",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 11"
+    },
+    {
+        "title": "The Stolen Earth",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 12"
+    },
+    {
+        "title": "Journey's End",
+        "runtime": "45 minutes",
+        "episode": "Series 4, Episode 13"
+    },
+    {
+        "title": "The Eleventh Hour",
+        "runtime": "65 minutes",
+        "episode": "Series 5, Episode 1"
+    },
+    {
+        "title": "The Beast Below",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 2"
+    },
+    {
+        "title": "Victory of the Daleks",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 3"
+    },
+    {
+        "title": "The Time of Angels",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 4"
+    },
+    {
+        "title": "Flesh and Stone",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 5"
+    },
+    {
+        "title": "The Vampires of Venice",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 6"
+    },
+    {
+        "title": "Amy's Choice",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 7"
+    },
+    {
+        "title": "The Hungry Earth",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 8"
+    },
+    {
+        "title": "Cold Blood",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 9"
+    },
+    {
+        "title": "Vincent and the Doctor",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 10"
+    },
+    {
+        "title": "The Lodger",
+        "runtime": "42 minutes",
+        "episode": "Series 5, Episode 11"
+    },
+    {
+        "title": "The Pandorica Opens",
+        "runtime": "50 minutes",
+        "episode": "Series 5, Episode 12"
+    },
+    {
+        "title": "The Big Bang",
+        "runtime": "50 minutes",
+        "episode": "Series 5, Episode 13"
+    },
+    {
+        "title": "The Impossible Astronaut",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 1"
+    },
+    {
+        "title": "Day of the Moon",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 2"
+    },
+    {
+        "title": "The Curse of the Black Spot",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 3"
+    },
+    {
+        "title": "The Doctor's Wife",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 4"
+    },
+    {
+        "title": "The Rebel Flesh",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 5"
+    },
+    {
+        "title": "The Almost People",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 6"
+    },
+    {
+        "title": "A Good Man Goes to War",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 7"
+    },
+    {
+        "title": "Let's Kill Hitler",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 8"
+    },
+    {
+        "title": "Night Terrors",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 9"
+    },
+    {
+        "title": "The Girl Who Waited",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 10"
+    },
+    {
+        "title": "The God Complex",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 11"
+    },
+    {
+        "title": "Closing Time",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 12"
+    },
+    {
+        "title": "The Wedding of River Song",
+        "runtime": "45 minutes",
+        "episode": "Series 6, Episode 13"
+    },
+    {
+        "title": "Asylum of the Daleks",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 1"
+    },
+    {
+        "title": "Dinosaurs on a Spaceship",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 2"
+    },
+    {
+        "title": "A Town Called Mercy",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 3"
+    },
+    {
+        "title": "The Power of Three",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 4"
+    },
+    {
+        "title": "The Angels Take Manhattan",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 5"
+    },
+    {
+        "title": "The Bells of Saint John",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 6"
+    },
+    {
+        "title": "The Rings of Akhaten",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 7"
+    },
+    {
+        "title": "Cold War",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 8"
+    },
+    {
+        "title": "Hide",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 9"
+    },
+    {
+        "title": "Journey to the Centre of the TARDIS",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 10"
+    },
+    {
+        "title": "The Crimson Horror",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 11"
+    },
+    {
+        "title": "Nightmare in Silver",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 12"
+    },
+    {
+        "title": "The Name of the Doctor",
+        "runtime": "45 minutes",
+        "episode": "Series 7, Episode 13"
+    },
+    {
+        "title": "Deep Breath",
+        "runtime": "76 minutes",
+        "episode": "Series 8, Episode 1"
+    },
+    {
+        "title": "Into the Dalek",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 2"
+    },
+    {
+        "title": "Robot of Sherwood",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 3"
+    },
+    {
+        "title": "Listen",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 4"
+    },
+    {
+        "title": "Time Heist",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 5"
+    },
+    {
+        "title": "The Caretaker",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 6"
+    },
+    {
+        "title": "Kill the Moon",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 7"
+    },
+    {
+        "title": "Mummy on the Orient Express",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 8"
+    },
+    {
+        "title": "Flatline",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 9"
+    },
+    {
+        "title": "In the Forest of the Night",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 10"
+    },
+    {
+        "title": "Dark Water",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 11"
+    },
+    {
+        "title": "Death in Heaven",
+        "runtime": "45 minutes",
+        "episode": "Series 8, Episode 12"
+    },
+    {
+        "title": "The Magician's Apprentice",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 1"
+    },
+    {
+        "title": "The Witch's Familiar",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 2"
+    },
+    {
+        "title": "Under the Lake",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 3"
+    },
+    {
+        "title": "Before the Flood",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 4"
+    },
+    {
+        "title": "The Girl Who Died",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 5"
+    },
+    {
+        "title": "The Woman Who Lived",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 6"
+    },
+    {
+        "title": "The Zygon Invasion",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 7"
+    },
+    {
+        "title": "The Zygon Inversion",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 8"
+    },
+    {
+        "title": "Sleep No More",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 9"
+    },
+    {
+        "title": "Face the Raven",
+        "runtime": "45 minutes",
+        "episode": "Series 9, Episode 10"
+    },
+    {
+        "title": "Heaven Sent",
+        "runtime": "55 minutes",
+        "episode": "Series 9, Episode 11"
+    },
+    {
+        "title": "Hell Bent",
+        "runtime": "65 minutes",
+        "episode": "Series 9, Episode 12"
+    },
+    {
+        "title": "The Pilot",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 1"
+    },
+    {
+        "title": "Smile",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 2"
+    },
+    {
+        "title": "Thin Ice",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 3"
+    },
+    {
+        "title": "Knock Knock",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 4"
+    },
+    {
+        "title": "Oxygen",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 5"
+    },
+    {
+        "title": "Extremis",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 6"
+    },
+    {
+        "title": "The Pyramid at the End of the World",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 7"
+    },
+    {
+        "title": "The Lie of the Land",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 8"
+    },
+    {
+        "title": "Empress of Mars",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 9"
+    },
+    {
+        "title": "The Eaters of Light",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 10"
+    },
+    {
+        "title": "World Enough and Time",
+        "runtime": "45 minutes",
+        "episode": "Series 10, Episode 11"
+    },
+    {
+        "title": "The Doctor Falls",
+        "runtime": "60 minutes",
+        "episode": "Series 10, Episode 12"
+    },
+    {
+        "title": "The Woman Who Fell to Earth",
+        "runtime": "63 minutes",
+        "episode": "Series 11, Episode 1"
+    },
+    {
+        "title": "The Ghost Monument",
+        "runtime": "49 minutes",
+        "episode": "Series 11, Episode 2"
+    },
+    {
+        "title": "Rosa",
+        "runtime": "50 minutes",
+        "episode": "Series 11, Episode 3"
+    },
+    {
+        "title": "Arachnids in the UK",
+        "runtime": "49 minutes",
+        "episode": "Series 11, Episode 4"
+    },
+    {
+        "title": "The Tsuranga Conundrum",
+        "runtime": "50 minutes",
+        "episode": "Series 11, Episode 5"
+    },
+    {
+        "title": "Demons of the Punjab",
+        "runtime": "50 minutes",
+        "episode": "Series 11, Episode 6"
+    },
+    {
+        "title": "Kerblam!",
+        "runtime": "49 minutes",
+        "episode": "Series 11, Episode 7"
+    },
+    {
+        "title": "The Witchfinders",
+        "runtime": "49 minutes",
+        "episode": "Series 11, Episode 8"
+    },
+    {
+        "title": "It Takes You Away",
+        "runtime": "49 minutes",
+        "episode": "Series 11, Episode 9"
+    },
+    {
+        "title": "The Battle of Ranskoor Av Kolos",
+        "runtime": "50 minutes",
+        "episode": "Series 11, Episode 10"
+    },
+    {
+        "title": "Spyfall: Part One",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 1"
+    },
+    {
+        "title": "Spyfall: Part Two",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 2"
+    },
+    {
+        "title": "Orphan 55",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 3"
+    },
+    {
+        "title": "Nikola Tesla's Night of Terror",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 4"
+    },
+    {
+        "title": "Fugitive of the Judoon",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 5"
+    },
+    {
+        "title": "Praxeus",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 6"
+    },
+    {
+        "title": "Can You Hear Me?",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 7"
+    },
+    {
+        "title": "The Haunting of Villa Diodati",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 8"
+    },
+    {
+        "title": "Ascension of the Cybermen",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 9"
+    },
+    {
+        "title": "The Timeless Children",
+        "runtime": "65 minutes",
+        "episode": "Series 12, Episode 10"
+    }
+]

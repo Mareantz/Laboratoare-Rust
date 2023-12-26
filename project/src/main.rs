@@ -1,5 +1,6 @@
 use anyhow::anyhow;
 use rand::seq::IteratorRandom;
+use serde::Deserialize;
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
@@ -7,6 +8,13 @@ use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
 use std::{fs, path::Path};
 use tracing::{error, info};
+
+#[derive(Deserialize)]
+struct Episode {
+    title: String,
+    runtime: String,
+    episode: String,
+}
 
 struct Bot;
 
@@ -55,34 +63,34 @@ impl EventHandler for Bot {
                         {
                             error!("Error sending photo: {:?}", e);
                         }
-                    } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid photo number!").await
-                        {
-                            error!("Error sending message: {:?}", e);
-                        }
-                } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
+                    } else if let Err(e) =
+                        msg.channel_id.say(&ctx.http, "Invalid photo number!").await
+                    {
                         error!("Error sending message: {:?}", e);
-                    
+                    }
+                } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
+                    error!("Error sending message: {:?}", e);
                 }
             }
             if command == "!episode" {
-                let episodes = fs::read_to_string("src/episodes.txt");
-                match episodes {
-                    Ok(episodes) => {
-                        for line in episodes.lines() {
-                            let episode = line.split_once(',');
-                            if let Some((title, _)) = episode {
-                                for word in title.split(' ') {
-                                    if word.to_lowercase() == args.to_lowercase() {
-                                        if let Err(e) = msg.channel_id.say(&ctx.http, line).await {
-                                            error!("Error sending message: {:?}", e);
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
+                let input = fs::read_to_string("src/episodes.json");
+                let episodes: Vec<Episode> = serde_json::from_str(&input.unwrap()).unwrap();
+                for episode in episodes {
+                    if episode.title.to_lowercase().contains(&args.to_lowercase()) {
+                        if let Err(e) = msg
+                            .channel_id
+                            .say(
+                                &ctx.http,
+                                format!(
+                                    "{} {} {}",
+                                    episode.title, episode.runtime, episode.episode
+                                ),
+                            )
+                            .await
+                        {
+                            error!("Error sending message: {:?}", e);
                         }
                     }
-                    Err(e) => error!("Error reading file: {:?}", e),
                 }
             }
         }
