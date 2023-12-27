@@ -1,141 +1,241 @@
 use anyhow::anyhow;
 use poise::serenity_prelude::{self as serenity};
 use rand::seq::IteratorRandom;
+use rand::Rng;
 use serde::Deserialize;
 use serenity::async_trait;
 use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
+use serenity::model::prelude::ChannelId;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
+use std::sync::Arc;
 use std::{collections::HashMap, fs, path::Path};
-use tracing::{error, info};
+use tokio::time::Duration;
+use tracing::error;
 
 #[derive(Deserialize)]
 struct Episode {
     title: String,
     runtime: String,
-    episode: String,
+    episode_string: String,
 }
 
-struct Bot;
+struct Bot {
+    interval_started: Arc<Mutex<bool>>,
+    questions: Vec<(String, String)>,
+    current_question: Arc<Mutex<Option<String>>>,
+    current_answer: Arc<Mutex<Option<String>>>,
+}
+
+impl Bot {
+    fn new() -> Result<Self, Box<dyn std::error::Error + Send + Sync>> {
+        let file_content = fs::read_to_string("src/questions.txt")?;
+        let questions: Vec<(String, String)> = file_content
+            .lines()
+            .map(|line| {
+                let (question, answer) = line.split_once(':').unwrap_or((line, ""));
+                (question.to_string(), answer.to_string())
+            })
+            .collect();
+
+        Ok(Self {
+            interval_started: Arc::new(Mutex::new(false)),
+            questions,
+            current_question: Arc::new(Mutex::new(None)),
+            current_answer: Arc::new(Mutex::new(None)),
+        })
+    }
+}
 
 #[async_trait]
 impl EventHandler for Bot {
     async fn message(&self, ctx: Context, msg: Message) {
-        if msg.content == "!doctor" {
-            if let Err(e) = msg
-                .channel_id
-                .say(&ctx.http, "Command usage: !doctor [number]")
-                .await
-            {
-                error!("Error sending message: {:?}", e);
-            }
-        }
-
-        if msg.content == "!quote" {
-            let rng = fs::read_to_string("src/quotes.txt");
-            match rng {
-                Ok(rng) => {
-                    let quote = rng.lines().choose(&mut rand::thread_rng()).unwrap();
-                    if let Err(e) = msg.channel_id.say(&ctx.http, quote).await {
-                        error!("Error sending message: {:?}", e);
-                    }
-                }
-                Err(e) => error!("Error reading file: {:?}", e),
-            }
-        }
-
-        if msg.content == "!points" {
-            let uid = msg.author.id;
-            let input = fs::read_to_string("src/stats.json");
-            match input {
-                Ok(input) => {
-                    let mut users: HashMap<String, u32> = serde_json::from_str(&input).unwrap();
-                    users.entry(uid.to_string()).or_default();
-                    let output = serde_json::to_string(&users).unwrap();
-                    fs::write("src/stats.json", output).expect("Unable to write file");
-                    let mut leaderboard: Vec<(String, u32)> = Vec::new();
-                    for (uid, points) in users {
-                        if let Ok(user) = ctx.http.get_user(uid.parse::<u64>().unwrap()).await {
-                            leaderboard.push((user.name, points));
-                        }
-                    }
-                    leaderboard.sort_by(|a, b| b.1.cmp(&a.1));
-                    let leaderboard_string = leaderboard
-                        .into_iter()
-                        .map(|(name, points)| format!("{}: {}", name, points))
-                        .collect::<Vec<String>>()
-                        .join("\n");
-                    if let Err(e) = msg.channel_id.say(&ctx.http, leaderboard_string).await {
-                        error!("Error sending message: {:?}", e);
-                    }
-                }
-                Err(e) => error!("Error reading file: {:?}", e),
-            }
-        }
-
-        let content = msg.content.split_once(' ');
-        if let Some((command, args)) = content {
-            if command == "!doctor" {
-                let path = Path::new("doctors");
-                let entries = fs::read_dir(path).expect("Unable to list files in the directory");
-                let files: Vec<_> = entries
-                    .filter_map(Result::ok)
-                    .map(|res| res.path())
-                    .collect();
-                if let Ok(index) = args.trim().parse::<usize>() {
-                    if index > 0 && index <= files.len() {
-                        let photo = &files[index - 1];
-                        if let Err(e) = msg
-                            .channel_id
-                            .send_files(&ctx.http, vec![photo], |m| {
-                                m.content("Here is your photo!")
-                            })
-                            .await
-                        {
-                            error!("Error sending photo: {:?}", e);
-                        }
-                    } else if let Err(e) =
-                        msg.channel_id.say(&ctx.http, "Invalid photo number!").await
-                    {
-                        error!("Error sending message: {:?}", e);
-                    }
-                } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
-                    error!("Error sending message: {:?}", e);
-                }
-            }
-
-            if command == "!episode" {
-                let input = fs::read_to_string("src/episodes.json");
-                match input {
-                    Ok(input) => {
-                        let episodes: Vec<Episode> = serde_json::from_str(&input).unwrap();
-                        for episode in episodes {
-                            if episode.title.to_lowercase().contains(&args.to_lowercase()) {
-                                if let Err(e) = msg
-                                    .channel_id
-                                    .say(
-                                        &ctx.http,
-                                        format!(
-                                            "{} {} {}",
-                                            episode.title, episode.runtime, episode.episode
-                                        ),
-                                    )
-                                    .await
-                                {
-                                    error!("Error sending message: {:?}", e);
-                                }
-                            }
+        match msg.content.as_str() {
+            "!quote" => {
+                let rng = fs::read_to_string("src/quotes.txt");
+                match rng {
+                    Ok(rng) => {
+                        let quote = rng.lines().choose(&mut rand::thread_rng()).unwrap();
+                        if let Err(e) = msg.channel_id.say(&ctx.http, quote).await {
+                            error!("Error sending message: {:?}", e);
                         }
                     }
                     Err(e) => error!("Error reading file: {:?}", e),
                 }
             }
+            "!points" => {
+                let input = fs::read_to_string("src/stats.json");
+                match input {
+                    Ok(input) => {
+                        let users: HashMap<String, u32> = serde_json::from_str(&input).unwrap();
+                        if users.is_empty() {
+                            if let Err(e) = msg
+                                .channel_id
+                                .say(&ctx.http, "No points have been awarded yet!")
+                                .await
+                            {
+                                error!("Error sending message: {:?}", e);
+                            }
+                            return;
+                        }
+                        let output = serde_json::to_string(&users).unwrap();
+                        fs::write("src/stats.json", output).expect("Unable to write file");
+                        let mut leaderboard: Vec<(String, u32)> = Vec::new();
+                        for (uid, points) in users {
+                            if let Ok(user) = ctx.http.get_user(uid.parse::<u64>().unwrap()).await {
+                                leaderboard.push((user.name, points));
+                            }
+                        }
+                        leaderboard.sort_by(|a, b| b.1.cmp(&a.1));
+                        let leaderboard_string = leaderboard
+                            .into_iter()
+                            .map(|(name, points)| format!("{}: {}", name, points))
+                            .collect::<Vec<String>>()
+                            .join("\n");
+                        if let Err(e) = msg.channel_id.say(&ctx.http, leaderboard_string).await {
+                            error!("Error sending message: {:?}", e);
+                        }
+                    }
+                    Err(e) => error!("Error reading file: {:?}", e),
+                }
+            }
+            _ => (),
+        }
+
+        let mut current_question = self.current_question.lock().await;
+        let mut current_answer = self.current_answer.lock().await;
+        let mut interval_started = self.interval_started.lock().await;
+        if let Some(answer) = &*current_answer {
+            if msg.content.trim().to_lowercase() == answer.trim().to_lowercase() {
+                *current_question = None;
+                *current_answer = None;
+                *interval_started = true;
+                let http = ctx.http.clone();
+                let current_question_clone = Arc::clone(&self.current_question);
+                let current_answer_clone = Arc::clone(&self.current_answer);
+                let questions = self.questions.clone();
+                let mut stats: HashMap<u64, u32> = match fs::read_to_string("src/stats.json") {
+                    Ok(content) => serde_json::from_str(&content).unwrap_or_default(),
+                    Err(_) => HashMap::new(),
+                };
+
+                let user_id = *msg.author.id.as_u64();
+                let user_score = stats.entry(user_id).or_insert(0);
+                *user_score += 1;
+
+                let stats_json = serde_json::to_string(&stats).unwrap();
+                fs::write("src/stats.json", stats_json).expect("Unable to write file");
+
+                if let Err(e) = msg
+                    .channel_id
+                    .say(
+                        &ctx.http,
+                        "Correct answer! Next question will be posted in 15 seconds!",
+                    )
+                    .await
+                {
+                    error!("Error sending message: {:?}", e);
+                }
+
+                tokio::spawn(async move {
+                    tokio::time::sleep(Duration::from_secs(15)).await;
+                    let mut current_question = current_question_clone.lock().await;
+                    let mut current_answer = current_answer_clone.lock().await;
+                    let random_index = rand::thread_rng().gen_range(0..questions.len());
+                    let question_answer_pair = questions[random_index].clone();
+                    *current_question = Some(question_answer_pair.0.clone());
+                    *current_answer = Some(question_answer_pair.1.clone());
+
+                    if let Err(e) = ChannelId(1126453264607617046)
+                        .say(
+                            &http,
+                            format!("Trivia question: {}", &question_answer_pair.0),
+                        )
+                        .await
+                    {
+                        println!("Error sending message: {:?}", e);
+                    }
+                });
+            }
+        }
+
+        let (command, args) = msg.content.split_once(' ').unwrap_or((&msg.content, ""));
+        if command == "!doctor" {
+            let path = Path::new("doctors");
+            let entries = fs::read_dir(path).expect("Unable to list files in the directory");
+            let files: Vec<_> = entries
+                .filter_map(Result::ok)
+                .map(|res| res.path())
+                .collect();
+            if let Ok(index) = args.trim().parse::<usize>() {
+                if index > 0 && index <= files.len() {
+                    let photo = &files[index - 1];
+                    if let Err(e) = msg
+                        .channel_id
+                        .send_files(&ctx.http, vec![photo], |m| m.content("Here is your photo!"))
+                        .await
+                    {
+                        error!("Error sending photo: {:?}", e);
+                    }
+                } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid photo number!").await
+                {
+                    error!("Error sending message: {:?}", e);
+                }
+            } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
+                error!("Error sending message: {:?}", e);
+            }
+        }
+
+        if command == "!episode" {
+            let input = fs::read_to_string("src/episodes.json");
+            match input {
+                Ok(input) => {
+                    let episodes: Vec<Episode> = serde_json::from_str(&input).unwrap();
+                    for episode in episodes {
+                        if episode.title.to_lowercase().contains(&args.to_lowercase()) {
+                            if let Err(e) = msg
+                                .channel_id
+                                .say(
+                                    &ctx.http,
+                                    format!(
+                                        "{} {} {}",
+                                        episode.title, episode.runtime, episode.episode_string
+                                    ),
+                                )
+                                .await
+                            {
+                                error!("Error sending message: {:?}", e);
+                            }
+                        }
+                    }
+                }
+                Err(e) => error!("Error reading file: {:?}", e),
+            }
         }
     }
 
-    async fn ready(&self, _: Context, ready: Ready) {
-        info!("{} is connected!", ready.user.name);
+    async fn ready(&self, ctx: Context, ready: Ready) {
+        println!("{} is connected!", ready.user.name);
+
+        let http = ctx.http.clone();
+        let current_question_clone = Arc::clone(&self.current_question);
+        let current_answer_clone = Arc::clone(&self.current_answer);
+        let questions = self.questions.clone();
+        let random_index = rand::thread_rng().gen_range(0..questions.len());
+        let question_answer_pair = questions[random_index].clone();
+        *current_question_clone.lock().await = Some(question_answer_pair.0.clone());
+        *current_answer_clone.lock().await = Some(question_answer_pair.1.clone());
+
+        if let Err(e) = ChannelId(1126453264607617046)
+            .say(
+                &http,
+                format!("Trivia question: {}", &question_answer_pair.0),
+            )
+            .await
+        {
+            println!("Error sending message: {:?}", e);
+        }
     }
 }
 
@@ -154,7 +254,7 @@ async fn serenity(
     let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
 
     let client = Client::builder(&token, intents)
-        .event_handler(Bot)
+        .event_handler(Bot::new().unwrap())
         .await
         .expect("Err creating client");
 
