@@ -56,9 +56,20 @@ impl EventHandler for Bot {
                 let rng = fs::read_to_string("src/quotes.txt");
                 match rng {
                     Ok(rng) => {
-                        let quote = rng.lines().choose(&mut rand::thread_rng()).unwrap();
-                        if let Err(e) = msg.channel_id.say(&ctx.http, quote).await {
-                            error!("Error sending message: {:?}", e);
+                        let quote_option = rng.lines().choose(&mut rand::thread_rng());
+                        match quote_option {
+                            Some(quote) => {
+                                if let Err(e) = msg.channel_id.say(&ctx.http, quote).await {
+                                    error!("Error sending message: {:?}", e);
+                                }
+                            }
+                            None => {
+                                if let Err(e) =
+                                    msg.channel_id.say(&ctx.http, "No quotes found!").await
+                                {
+                                    error!("Error sending message: {:?}", e);
+                                }
+                            }
                         }
                     }
                     Err(e) => error!("Error reading file: {:?}", e),
@@ -68,33 +79,74 @@ impl EventHandler for Bot {
                 let input = fs::read_to_string("src/stats.json");
                 match input {
                     Ok(input) => {
-                        let users: HashMap<String, u32> = serde_json::from_str(&input).unwrap();
-                        if users.is_empty() {
-                            if let Err(e) = msg
-                                .channel_id
-                                .say(&ctx.http, "No points have been awarded yet!")
-                                .await
-                            {
-                                error!("Error sending message: {:?}", e);
+                        let users_result = serde_json::from_str::<HashMap<String, u32>>(&input);
+                        let users_map: HashMap<String, u32>;
+                        match users_result {
+                            Ok(users) => {
+                                users_map = users;
+                                if users_map.is_empty() {
+                                    if let Err(e) = msg
+                                        .channel_id
+                                        .say(&ctx.http, "No points have been awarded yet!")
+                                        .await
+                                    {
+                                        error!("Error sending message: {:?}", e);
+                                    }
+                                    return;
+                                }
                             }
-                            return;
-                        }
-                        let output = serde_json::to_string(&users).unwrap();
-                        fs::write("src/stats.json", output).expect("Unable to write file");
-                        let mut leaderboard: Vec<(String, u32)> = Vec::new();
-                        for (uid, points) in users {
-                            if let Ok(user) = ctx.http.get_user(uid.parse::<u64>().unwrap()).await {
-                                leaderboard.push((user.name, points));
+                            Err(e) => {
+                                error!("Error parsing users: {:?}", e);
+                                return;
                             }
                         }
-                        leaderboard.sort_by(|a, b| b.1.cmp(&a.1));
-                        let leaderboard_string = leaderboard
-                            .into_iter()
-                            .map(|(name, points)| format!("{}: {}", name, points))
-                            .collect::<Vec<String>>()
-                            .join("\n");
-                        if let Err(e) = msg.channel_id.say(&ctx.http, leaderboard_string).await {
-                            error!("Error sending message: {:?}", e);
+                        let output_result = serde_json::to_string(&users_map);
+                        match output_result {
+                            Ok(output) => {
+                                let write_result = fs::write("src/stats.json", output);
+                                match write_result {
+                                    Ok(_) => {
+                                        let mut leaderboard: Vec<(String, u32)> = Vec::new();
+                                        for (uid, points) in users_map {
+                                            let user_result = uid.parse::<u64>();
+                                            match user_result {
+                                                Ok(parsed_uid) => {
+                                                    let user_result =
+                                                        ctx.http.get_user(parsed_uid).await;
+                                                    match user_result {
+                                                        Ok(user) => {
+                                                            leaderboard.push((user.name, points));
+                                                        }
+                                                        Err(e) => {
+                                                            error!("Error getting user: {:?}", e);
+                                                        }
+                                                    }
+                                                }
+                                                Err(e) => {
+                                                    error!("Error parsing uid: {:?}", e);
+                                                }
+                                            }
+                                        }
+                                        leaderboard.sort_by(|a, b| b.1.cmp(&a.1));
+                                        let leaderboard_string = leaderboard
+                                            .into_iter()
+                                            .map(|(name, points)| format!("{}: {}", name, points))
+                                            .collect::<Vec<String>>()
+                                            .join("\n");
+                                        if let Err(e) =
+                                            msg.channel_id.say(&ctx.http, leaderboard_string).await
+                                        {
+                                            error!("Error sending message: {:?}", e);
+                                        }
+                                    }
+                                    Err(e) => {
+                                        error!("Error writing file: {:?}", e);
+                                    }
+                                }
+                            }
+                            Err(e) => {
+                                error!("Error converting to string: {:?}", e);
+                            }
                         }
                     }
                     Err(e) => error!("Error reading file: {:?}", e),
@@ -124,8 +176,21 @@ impl EventHandler for Bot {
                 let user_score = stats.entry(user_id).or_insert(0);
                 *user_score += 1;
 
-                let stats_json = serde_json::to_string(&stats).unwrap();
-                fs::write("src/stats.json", stats_json).expect("Unable to write file");
+                let stats_json_result = serde_json::to_string(&stats);
+                match stats_json_result {
+                    Ok(stats_json) => {
+                        let write_result = fs::write("src/stats.json", stats_json);
+                        match write_result {
+                            Ok(_) => {}
+                            Err(e) => {
+                                error!("Error writing file: {:?}", e);
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        error!("Error converting to string: {:?}", e);
+                    }
+                }
 
                 if let Err(e) = msg
                     .channel_id
@@ -163,27 +228,37 @@ impl EventHandler for Bot {
         let (command, args) = msg.content.split_once(' ').unwrap_or((&msg.content, ""));
         if command == "!doctor" {
             let path = Path::new("doctors");
-            let entries = fs::read_dir(path).expect("Unable to list files in the directory");
-            let files: Vec<_> = entries
-                .filter_map(Result::ok)
-                .map(|res| res.path())
-                .collect();
-            if let Ok(index) = args.trim().parse::<usize>() {
-                if index > 0 && index <= files.len() {
-                    let photo = &files[index - 1];
-                    if let Err(e) = msg
-                        .channel_id
-                        .send_files(&ctx.http, vec![photo], |m| m.content("Here is your photo!"))
-                        .await
-                    {
-                        error!("Error sending photo: {:?}", e);
+            let entries_result = fs::read_dir(path);
+            match entries_result {
+                Ok(entries) => {
+                    let files: Vec<_> = entries
+                        .filter_map(Result::ok)
+                        .map(|res| res.path())
+                        .collect();
+                    if let Ok(index) = args.trim().parse::<usize>() {
+                        if index > 0 && index <= files.len() {
+                            let photo = &files[index - 1];
+                            if let Err(e) = msg
+                                .channel_id
+                                .send_files(&ctx.http, vec![photo], |m| {
+                                    m.content("Here is your doctor!")
+                                })
+                                .await
+                            {
+                                error!("Error sending photo: {:?}", e);
+                            }
+                        } else if let Err(e) = msg
+                            .channel_id
+                            .say(&ctx.http, "Invalid doctor number!")
+                            .await
+                        {
+                            error!("Error sending message: {:?}", e);
+                        }
                     }
-                } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid photo number!").await
-                {
-                    error!("Error sending message: {:?}", e);
                 }
-            } else if let Err(e) = msg.channel_id.say(&ctx.http, "Invalid number!").await {
-                error!("Error sending message: {:?}", e);
+                Err(e) => {
+                    error!("Error reading directory: {:?}", e);
+                }
             }
         }
 
@@ -191,22 +266,31 @@ impl EventHandler for Bot {
             let input = fs::read_to_string("src/episodes.json");
             match input {
                 Ok(input) => {
-                    let episodes: Vec<Episode> = serde_json::from_str(&input).unwrap();
-                    for episode in episodes {
-                        if episode.title.to_lowercase().contains(&args.to_lowercase()) {
-                            if let Err(e) = msg
-                                .channel_id
-                                .say(
-                                    &ctx.http,
-                                    format!(
-                                        "{} {} {}",
-                                        episode.title, episode.runtime, episode.episode_string
-                                    ),
-                                )
-                                .await
-                            {
-                                error!("Error sending message: {:?}", e);
+                    let episodes_result = serde_json::from_str::<Vec<Episode>>(&input);
+                    match episodes_result {
+                        Ok(episodes) => {
+                            for episode in episodes {
+                                if episode.title.to_lowercase().contains(&args.to_lowercase()) {
+                                    if let Err(e) = msg
+                                        .channel_id
+                                        .say(
+                                            &ctx.http,
+                                            format!(
+                                                "{} {} {}",
+                                                episode.title,
+                                                episode.runtime,
+                                                episode.episode_string
+                                            ),
+                                        )
+                                        .await
+                                    {
+                                        error!("Error sending message: {:?}", e);
+                                    }
+                                }
                             }
+                        }
+                        Err(e) => {
+                            error!("Error parsing episodes: {:?}", e);
                         }
                     }
                 }
