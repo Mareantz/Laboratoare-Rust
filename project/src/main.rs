@@ -152,6 +152,16 @@ impl EventHandler for Bot {
                     Err(e) => error!("Error reading file: {:?}", e),
                 }
             }
+            "!episode" => {
+                if let Err(e) = msg.channel_id.say(&ctx.http, "Syntax: !episode [text]").await {
+                    error!("Error sending message: {:?}", e);
+                }
+            }
+            "!doctor" => {
+                if let Err(e) = msg.channel_id.say(&ctx.http, "Syntax: !doctor [number]").await {
+                    error!("Error sending message: {:?}", e);
+                }
+            }
             _ => (),
         }
 
@@ -212,7 +222,7 @@ impl EventHandler for Bot {
                     *current_question = Some(question_answer_pair.0.clone());
                     *current_answer = Some(question_answer_pair.1.clone());
 
-                    if let Err(e) = ChannelId(1126453264607617046)
+                    if let Err(e) = ChannelId(1194584342354210816)
                         .say(
                             &http,
                             format!("Trivia question: {}", &question_answer_pair.0),
@@ -226,6 +236,9 @@ impl EventHandler for Bot {
         }
 
         let (command, args) = msg.content.split_once(' ').unwrap_or((&msg.content, ""));
+        if args.is_empty() {
+            return;
+        }
         if command == "!doctor" {
             let path = Path::new("doctors");
             let entries_result = fs::read_dir(path);
@@ -269,8 +282,10 @@ impl EventHandler for Bot {
                     let episodes_result = serde_json::from_str::<Vec<Episode>>(&input);
                     match episodes_result {
                         Ok(episodes) => {
+                            let mut found:bool = false;
                             for episode in episodes {
                                 if episode.title.to_lowercase().contains(&args.to_lowercase()) {
+                                    found=true;
                                     if let Err(e) = msg
                                         .channel_id
                                         .say(
@@ -286,6 +301,11 @@ impl EventHandler for Bot {
                                     {
                                         error!("Error sending message: {:?}", e);
                                     }
+                                }
+                            }
+                            if !found {
+                                if let Err(e) = msg.channel_id.say(&ctx.http, "No episode found!").await {
+                                    error!("Error sending message: {:?}", e);
                                 }
                             }
                         }
@@ -311,7 +331,7 @@ impl EventHandler for Bot {
         *current_question_clone.lock().await = Some(question_answer_pair.0.clone());
         *current_answer_clone.lock().await = Some(question_answer_pair.1.clone());
 
-        if let Err(e) = ChannelId(1126453264607617046)
+        if let Err(e) = ChannelId(1194584342354210816)
             .say(
                 &http,
                 format!("Trivia question: {}", &question_answer_pair.0),
