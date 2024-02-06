@@ -18,4 +18,4 @@ To use K9, you need to use shuttle to deploy or run the bot locally on your devi
 ## Built With
 
 - [Rust](https://www.rust-lang.org/): A language empowering everyone to build reliable and efficient software.
-- [Shuttle](https://github.com/LunaticBots/Shuttle): A Discord API library in Rust.
+- [Shuttle](https://github.com/shuttle-hq/shuttle): A Discord API library in Rust.
