@@ -9,6 +9,7 @@ use serenity::model::gateway::Ready;
 use serenity::model::prelude::ChannelId;
 use serenity::prelude::*;
 use shuttle_secrets::SecretStore;
+use std::error::Error;
 use std::sync::Arc;
 use std::{collections::HashMap, fs, path::Path};
 use tokio::time::Duration;
@@ -48,117 +49,139 @@ impl Bot {
     }
 }
 
+async fn handle_points(ctx: &Context, msg: &Message) -> Result<(), Box<dyn Error>> {
+    let input = fs::read_to_string("src/stats.json")?;
+    let users_map: HashMap<String, u32> = serde_json::from_str(&input)?;
+
+    if users_map.is_empty() {
+        msg.channel_id
+            .say(&ctx.http, "No points have been awarded yet!")
+            .await?;
+        return Ok(());
+    }
+
+    let output = serde_json::to_string(&users_map)?;
+    fs::write("src/stats.json", output)?;
+
+    let mut leaderboard: Vec<(String, u32)> = Vec::new();
+    for (uid, points) in users_map {
+        let parsed_uid = uid.parse::<u64>()?;
+        let user = ctx.http.get_user(parsed_uid).await?;
+        leaderboard.push((user.name, points));
+    }
+
+    leaderboard.sort_by(|a, b| b.1.cmp(&a.1));
+    let leaderboard_string = leaderboard
+        .into_iter()
+        .map(|(name, points)| format!("{}: {}", name, points))
+        .collect::<Vec<String>>()
+        .join("\n");
+
+    msg.channel_id.say(&ctx.http, leaderboard_string).await?;
+    Ok(())
+}
+
+async fn handle_quote(ctx: &Context, msg: &Message) -> Result<(), Box<dyn Error>> {
+    let rng = fs::read_to_string("src/quotes.txt")?;
+    let quote_option = rng.lines().choose(&mut rand::thread_rng());
+
+    match quote_option {
+        Some(quote) => {
+            msg.channel_id.say(&ctx.http, quote).await?;
+        }
+        None => {
+            msg.channel_id.say(&ctx.http, "No quotes found!").await?;
+        }
+    }
+
+    Ok(())
+}
+
+async fn handle_command_with_args(
+    ctx: &Context,
+    msg: &Message,
+    command: &str,
+    args: &str,
+) -> Result<(), Box<dyn Error>> {
+    match command {
+        "!doctor" => {
+            let path = Path::new("doctors");
+            let entries = fs::read_dir(path)?;
+            let files: Vec<_> = entries
+                .filter_map(Result::ok)
+                .map(|res| res.path())
+                .collect();
+            if let Ok(index) = args.trim().parse::<usize>() {
+                if index > 0 && index <= files.len() {
+                    let photo = &files[index - 1];
+                    msg.channel_id
+                        .send_files(&ctx.http, vec![photo], |m| {
+                            m.content("Here is your doctor!")
+                        })
+                        .await?;
+                } else {
+                    msg.channel_id
+                        .say(&ctx.http, "Invalid doctor number!")
+                        .await?;
+                }
+            }
+        }
+        "!episode" => {
+            let input = fs::read_to_string("src/episodes.json")?;
+            let episodes: Vec<Episode> = serde_json::from_str(&input)?;
+            let mut found = false;
+            for episode in episodes {
+                if episode.title.to_lowercase().contains(&args.to_lowercase()) {
+                    found = true;
+                    msg.channel_id
+                        .say(
+                            &ctx.http,
+                            format!(
+                                "{} {} {}",
+                                episode.title, episode.runtime, episode.episode_string
+                            ),
+                        )
+                        .await?;
+                }
+            }
+            if !found {
+                msg.channel_id.say(&ctx.http, "No episode found!").await?;
+            }
+        }
+        _ => {}
+    }
+    Ok(())
+}
+
 #[async_trait]
 impl EventHandler for Bot {
     async fn message(&self, ctx: Context, msg: Message) {
         match msg.content.as_str() {
             "!quote" => {
-                let rng = fs::read_to_string("src/quotes.txt");
-                match rng {
-                    Ok(rng) => {
-                        let quote_option = rng.lines().choose(&mut rand::thread_rng());
-                        match quote_option {
-                            Some(quote) => {
-                                if let Err(e) = msg.channel_id.say(&ctx.http, quote).await {
-                                    error!("Error sending message: {:?}", e);
-                                }
-                            }
-                            None => {
-                                if let Err(e) =
-                                    msg.channel_id.say(&ctx.http, "No quotes found!").await
-                                {
-                                    error!("Error sending message: {:?}", e);
-                                }
-                            }
-                        }
-                    }
-                    Err(e) => error!("Error reading file: {:?}", e),
+                if let Err(e) = handle_quote(&ctx, &msg).await {
+                    error!("Error handling quote: {:?}", e);
                 }
             }
             "!points" => {
-                let input = fs::read_to_string("src/stats.json");
-                match input {
-                    Ok(input) => {
-                        let users_result = serde_json::from_str::<HashMap<String, u32>>(&input);
-                        let users_map: HashMap<String, u32>;
-                        match users_result {
-                            Ok(users) => {
-                                users_map = users;
-                                if users_map.is_empty() {
-                                    if let Err(e) = msg
-                                        .channel_id
-                                        .say(&ctx.http, "No points have been awarded yet!")
-                                        .await
-                                    {
-                                        error!("Error sending message: {:?}", e);
-                                    }
-                                    return;
-                                }
-                            }
-                            Err(e) => {
-                                error!("Error parsing users: {:?}", e);
-                                return;
-                            }
-                        }
-                        let output_result = serde_json::to_string(&users_map);
-                        match output_result {
-                            Ok(output) => {
-                                let write_result = fs::write("src/stats.json", output);
-                                match write_result {
-                                    Ok(_) => {
-                                        let mut leaderboard: Vec<(String, u32)> = Vec::new();
-                                        for (uid, points) in users_map {
-                                            let user_result = uid.parse::<u64>();
-                                            match user_result {
-                                                Ok(parsed_uid) => {
-                                                    let user_result =
-                                                        ctx.http.get_user(parsed_uid).await;
-                                                    match user_result {
-                                                        Ok(user) => {
-                                                            leaderboard.push((user.name, points));
-                                                        }
-                                                        Err(e) => {
-                                                            error!("Error getting user: {:?}", e);
-                                                        }
-                                                    }
-                                                }
-                                                Err(e) => {
-                                                    error!("Error parsing uid: {:?}", e);
-                                                }
-                                            }
-                                        }
-                                        leaderboard.sort_by(|a, b| b.1.cmp(&a.1));
-                                        let leaderboard_string = leaderboard
-                                            .into_iter()
-                                            .map(|(name, points)| format!("{}: {}", name, points))
-                                            .collect::<Vec<String>>()
-                                            .join("\n");
-                                        if let Err(e) =
-                                            msg.channel_id.say(&ctx.http, leaderboard_string).await
-                                        {
-                                            error!("Error sending message: {:?}", e);
-                                        }
-                                    }
-                                    Err(e) => {
-                                        error!("Error writing file: {:?}", e);
-                                    }
-                                }
-                            }
-                            Err(e) => {
-                                error!("Error converting to string: {:?}", e);
-                            }
-                        }
-                    }
-                    Err(e) => error!("Error reading file: {:?}", e),
+                if let Err(e) = handle_points(&ctx, &msg).await {
+                    error!("Error handling points: {:?}", e);
                 }
             }
             "!episode" => {
-                if let Err(e) = msg.channel_id.say(&ctx.http, "Syntax: !episode [text]").await {
+                if let Err(e) = msg
+                    .channel_id
+                    .say(&ctx.http, "Syntax: !episode [text]")
+                    .await
+                {
                     error!("Error sending message: {:?}", e);
                 }
             }
             "!doctor" => {
-                if let Err(e) = msg.channel_id.say(&ctx.http, "Syntax: !doctor [number]").await {
+                if let Err(e) = msg
+                    .channel_id
+                    .say(&ctx.http, "Syntax: !doctor [number]")
+                    .await
+                {
                     error!("Error sending message: {:?}", e);
                 }
             }
@@ -236,85 +259,9 @@ impl EventHandler for Bot {
         }
 
         let (command, args) = msg.content.split_once(' ').unwrap_or((&msg.content, ""));
-        if args.is_empty() {
-            return;
-        }
-        if command == "!doctor" {
-            let path = Path::new("doctors");
-            let entries_result = fs::read_dir(path);
-            match entries_result {
-                Ok(entries) => {
-                    let files: Vec<_> = entries
-                        .filter_map(Result::ok)
-                        .map(|res| res.path())
-                        .collect();
-                    if let Ok(index) = args.trim().parse::<usize>() {
-                        if index > 0 && index <= files.len() {
-                            let photo = &files[index - 1];
-                            if let Err(e) = msg
-                                .channel_id
-                                .send_files(&ctx.http, vec![photo], |m| {
-                                    m.content("Here is your doctor!")
-                                })
-                                .await
-                            {
-                                error!("Error sending photo: {:?}", e);
-                            }
-                        } else if let Err(e) = msg
-                            .channel_id
-                            .say(&ctx.http, "Invalid doctor number!")
-                            .await
-                        {
-                            error!("Error sending message: {:?}", e);
-                        }
-                    }
-                }
-                Err(e) => {
-                    error!("Error reading directory: {:?}", e);
-                }
-            }
-        }
-
-        if command == "!episode" {
-            let input = fs::read_to_string("src/episodes.json");
-            match input {
-                Ok(input) => {
-                    let episodes_result = serde_json::from_str::<Vec<Episode>>(&input);
-                    match episodes_result {
-                        Ok(episodes) => {
-                            let mut found:bool = false;
-                            for episode in episodes {
-                                if episode.title.to_lowercase().contains(&args.to_lowercase()) {
-                                    found=true;
-                                    if let Err(e) = msg
-                                        .channel_id
-                                        .say(
-                                            &ctx.http,
-                                            format!(
-                                                "{} {} {}",
-                                                episode.title,
-                                                episode.runtime,
-                                                episode.episode_string
-                                            ),
-                                        )
-                                        .await
-                                    {
-                                        error!("Error sending message: {:?}", e);
-                                    }
-                                }
-                            }
-                            if !found {
-                                if let Err(e) = msg.channel_id.say(&ctx.http, "No episode found!").await {
-                                    error!("Error sending message: {:?}", e);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            error!("Error parsing episodes: {:?}", e);
-                        }
-                    }
-                }
-                Err(e) => error!("Error reading file: {:?}", e),
+        if !args.is_empty() {
+            if let Err(e) = handle_command_with_args(&ctx, &msg, command, args).await {
+                error!("Error handling command: {:?}", e);
             }
         }
     }
